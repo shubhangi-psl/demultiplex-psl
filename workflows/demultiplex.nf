@@ -75,7 +75,8 @@ workflow DEMULTIPLEX {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-
+    
+    logger.info(ch_input)
     // Sanitize inputs and separate input types
     ch_inputs = extract_csv(ch_input)
 
