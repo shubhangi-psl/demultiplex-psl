@@ -78,11 +78,11 @@ workflow DEMULTIPLEX {
     
     // log.info ch_input
     // Sanitize inputs and separate input types
-    //ch_inputs = extract_csv(ch_input)
+    ch_inputs = extract_csv(ch_input)
 
     // Split flowcells into separate channels containg run as tar and run as path
     // https://nextflow.slack.com/archives/C02T98A23U7/p1650963988498929
-    /*ch_flowcells = ch_inputs
+    ch_flowcells = ch_inputs
         .branch { meta, samplesheet, run ->
             tar: run.toString().endsWith('.tar.gz')
             dir: true
@@ -92,16 +92,16 @@ workflow DEMULTIPLEX {
         .multiMap { meta, samplesheet, run ->
             samplesheets: [ meta, samplesheet ]
             run_dirs: [ meta, run ]
-        }*/
+        }
 
     // MODULE: untar
     // Runs when run_dir is a tar archive
     // Re-join the metadata and the untarred run directory with the samplesheet
-    //ch_flowcells_tar_merged = ch_flowcells_tar.samplesheets.join( UNTAR ( ch_flowcells_tar.run_dirs ).untar )
-    //ch_versions = ch_versions.mix(UNTAR.out.versions)
+    ch_flowcells_tar_merged = ch_flowcells_tar.samplesheets.join( UNTAR ( ch_flowcells_tar.run_dirs ).untar )
+    ch_versions = ch_versions.mix(UNTAR.out.versions)
 
     // Merge the two channels back together
-    ch_flowcells = [params.meta, params.input, params.input]
+    ch_flowcells = ch_flowcells.dir.mix(ch_flowcells_tar_merged)
     // RUN demultiplexing
     //
     ch_raw_fastq = Channel.empty()
